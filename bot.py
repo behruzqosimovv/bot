@@ -51,7 +51,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     elif text == "📥 Pulni yechib olish":
         balance = user_balances.get(user_id, 0)
-        if balance >= 20000:
+        if balance >= 40000:
             await update.message.reply_text("✅ Pul yechib olish so‘rovi qabul qilindi. Tez orada siz bilan bog‘lanamiz.")
             # Optionally, bu yerda adminga bildirish yuborish mumkin
         else:
