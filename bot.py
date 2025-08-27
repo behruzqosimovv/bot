@@ -1,9 +1,10 @@
 from telegram import Update, KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler, ContextTypes, filters
 import re
+import os
 
-TOKEN = "8022307088:AAF4pj3HRskIOnM34tpCe8huqxMIxgFr7dQ"  # Tokeningizni shu yerga yozing
-ADMIN_ID = 6593318018  # O'zingizning Telegram ID raqamingizni yozing
+TOKEN = os.getenv("BOT_TOKEN", "YOUR_BOT_TOKEN")  
+ADMIN_ID = int(os.getenv("ADMIN_ID", "123456789"))
 
 waiting_for_phone = {}
 waiting_for_code = {}
@@ -24,7 +25,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(referrer_id,
                                            f"🎉 Sizning referalingiz ({name}) botga qo‘shildi!\n💸 Sizga 2000 so‘m qo‘shildi!")
 
-    # Foydalanuvchining balansini boshlaymiz agar yo‘q bo‘lsa
     user_balances.setdefault(user_id, 0)
 
     keyboard = [
@@ -34,6 +34,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     await update.message.reply_text("Assalomu alaykum! Kerakli bo'limni tanlang:", reply_markup=reply_markup)
+
 
 # Asosiy menyu tugmalari ishlovchisi
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -53,7 +54,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         balance = user_balances.get(user_id, 0)
         if balance >= 40000:
             await update.message.reply_text("✅ Pul yechib olish so‘rovi qabul qilindi. Tez orada siz bilan bog‘lanamiz.")
-            # Optionally, bu yerda adminga bildirish yuborish mumkin
         else:
             await update.message.reply_text("❌ Pulni yechib olish uchun hisobingizda mablag' yetarli emas. (min: 40000 UZS)")
 
@@ -102,6 +102,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await update.message.reply_text("❓ Menyu tugmalaridan birini tanlang.")
 
+
 # Admin tugmalarining ishlovchisi
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -129,11 +130,11 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(user_id, "❌ Kod noto‘g‘ri yoki rad etildi.")
         await query.edit_message_text("❌ Kod rad etildi.")
 
-# Botni ishga tushirish
+
+# Botni yaratish
 app = ApplicationBuilder().token(TOKEN).build()
 app.add_handler(CommandHandler("start", start))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 app.add_handler(CallbackQueryHandler(button_callback))
 
-print("✅ Bot ishga tushdi...")
-app.run_polling()
+print("✅ Bot yuklandi (polling o‘chirilgan)")
